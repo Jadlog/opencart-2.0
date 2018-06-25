@@ -1,0 +1,127 @@
+/**
+ * DPD France v5.2.0 shipping module for OpenCart 2.0
+ *
+ * @category   DPDFrance
+ * @package    DPDFrance_Shipping
+ * @author     DPD France S.A.S. <support.ecommerce@dpd.fr>
+ * @copyright  2016 DPD France S.A.S., société par actions simplifiée, au capital de 18.500.000 euros, dont le siège social est situé 9 Rue Maurice Mallet - 92130 ISSY LES MOULINEAUX, immatriculée au registre du commerce et des sociétés de Paris sous le numéro 444 420 830
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+
+@font-face {
+  font-family: DPDPlutoSansExtraLight;
+  src: url(../../fonts/PlutoSansDPDExtraLight-Web.ttf);
+}
+
+@font-face {
+  font-family: DPDPlutoSansLight;
+  src: url(../../fonts/PlutoSansDPDLight-Web.ttf);
+}
+
+@font-face {
+  font-family: DPDPlutoSansRegular;
+  src: url(../../fonts/PlutoSansDPDRegular-Web.ttf);
+}
+#dpdfrlogo {
+    padding: 0 5px 0 0;
+    float: left;
+}
+#zonemarquee {
+    position: relative;
+    overflow: hidden;
+    padding: 10px;
+}
+
+div.js-marquee strong {
+    color: #dc0032;
+}
+
+.marquee {
+    display: block;
+    padding: 10px;
+    width: 800px;
+    color: #000000;
+}
+
+div.news_box_title {
+    font-weight: bold;
+}
+
+div.news_box a {
+    text-decoration: underline;
+    font-style: italic;
+}
+
+fieldset legend img {
+    height: 24px;
+}
+
+#content fieldset legend {
+    background-color: #ffffff;
+    color: #424143;
+    font-family: DPDPlutoSansRegular;
+}
+
+fieldset legend a {
+    color: #424143;
+    font-family: DPDPlutoSansRegular;
+    font-size: 13px;
+}
+
+#content fieldset {
+    background-color: #e6e7e7;
+}
+
+#filtericon {
+    height: 25px;
+    width: 28px;
+    vertical-align: middle;
+    background-color: #424143;
+}
+
+#tableFilter {
+    width: 50%;
+    color: #424143;
+    background-color: #e6e7e7;
+    font-family: "DPDPlutoSansLight";
+    font-size: 11px;
+    border-style: none;
+    padding: 0px 10px;
+    vertical-align: middle;
+    height: 25px;
+}
+
+div.js-marquee {
+    font-family: DPDPlutoSansExtraLight;
+    vertical-align: middle;
+}
+
+div.marquee {
+    padding: 0;
+}
+
+#content > div.page-header > div > fieldset > legend {
+    margin: 0;
+}
+
+#showhide {
+    width: 18px;
+    height: 18px;
+    line-height: 16px;
+    background-color: #ffffff;
+    color: #424143;
+    font-size: 32px;
+    display: inline-block;
+    margin-left: 10px;
+    text-align: center;
+    vertical-align: middle;
+    font-family: DPDPlutoSansExtraLight;
+}
+
+div.well {
+    background-color: #ffffff;
+}
+
+td.right input {
+    width: 40px;
+}

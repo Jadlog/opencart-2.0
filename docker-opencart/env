@@ -1,0 +1,8 @@
+MYSQL_DATABASE=opencart
+MYSQL_ROOT_PASSWORD=my-secret-pw
+MYSQL_USER=sql-user-1
+MYSQL_PASSWORD=sql-pwd-user-1
+SHOP_ADMIN_USER=admin
+SHOP_ADMIN_PASSWORD=password
+SHOP_ADMIN_EMAIL=sistemas@jadlog.com.br
+VIRTUAL_HOST=localhost:14001

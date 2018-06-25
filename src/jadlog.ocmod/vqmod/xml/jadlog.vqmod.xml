@@ -1,0 +1,303 @@
+<!-- /** * DPD France v5.2.0 shipping module for OpenCart 2.0 * * @category DPDFrance * @package DPDFrance_Shipping * @author DPD France S.A.S. <support.ecommerce@dpd.fr> * @copyright 2016 DPD France S.A.S., société par actions simplifiée, au capital de 18.500.000 euros, dont le siège social est situé 9 Rue Maurice Mallet - 92130 ISSY LES MOULINEAUX, immatriculée au registre du commerce et des sociétés de Paris sous le numéro 444 420 830 * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0) */ -->
+
+<modification>
+	<id>Jadlog</id>
+	<version>2.x.x</version>
+	<vqmver>2.4.0</vqmver>
+	<author>Jadlog S.A.S.</author>
+	<file name="admin/controller/common/menu.php">
+		<operation error="abort">
+			<search position="after"><![CDATA[$data['order'] = $this->url->link('sale/order', 'token=' . $this->session->data['token'], 'SSL');]]></search>
+			<add><![CDATA[		$data['jadlog'] = $this->url->link('sale/jadlog', 'token=' . $this->session->data['token'], 'SSL');]]></add>
+		</operation>
+	</file>
+
+	<file name="admin/controller/sale/customer.php">
+		<operation error="abort">
+			<search position="before"><![CDATA[public function index() {]]></search>
+			<add><![CDATA[	private function install() {
+	    $query = $this->db->query("DESC ".DB_PREFIX."customer cpf_or_cnpj");
+	    if (!$query->num_rows) {
+	        //$this->log->write("coluna cpf_or_cnpj nao encontrada em customer, criando");
+	        $this->db->query("ALTER TABLE `" . DB_PREFIX . "customer` ADD `cpf_or_cnpj` varchar(20) default ''");
+	    }
+	}
+]]></add>
+		</operation>
+	</file>
+
+	<file name="admin/controller/sale/customer.php">
+		<operation error="abort">
+			<search position="after"><![CDATA[public function index() {]]></search>
+			<add><![CDATA[ 	    $this->install();]]></add>
+		</operation>
+	</file>
+	<file name="admin/controller/sale/customer.php">
+		<operation error="abort">
+			<search position="after"><![CDATA[$data['countries'] = $this->model_localisation_country->getCountries();]]></search>
+			<add><![CDATA[		if (isset($this->request->post['cpf_or_cnpj'])) {
+		    $data['cpf_or_cnpj'] = $this->request->post['cpf_or_cnpj'];
+		} elseif (!empty($customer_info)) {
+		    $data['cpf_or_cnpj'] = $customer_info['cpf_or_cnpj'];
+		} else {
+		    $data['cpf_or_cnpj'] = '';
+		}]]></add>
+		</operation>
+	</file>
+	<file name="admin/controller/sale/order.php">
+		<operation error="abort">
+			<search position="after"><![CDATA[$data['shipping_country'] = $order_info['shipping_country'];]]></search>
+			<add><![CDATA[			$addr = $order_info['shipping_method'];
+			$pos = strpos($addr, "<a href=");
+			if ($pos) {
+			    $addr = substr($addr, 0, $pos-1);
+			}
+			$prefix = '';
+			if (strpos($order_info['shipping_code'], 'jadlogclassic') !== false) {
+			    $prefix = 'Jadlog Classic - ';
+
+			} else if (strpos($order_info['shipping_code'], 'jadloglista') !== false) {
+			    $prefix = 'Jadlog Lista - ';
+			}
+			$data['shipping_method'] = $prefix . $addr;
+			$data['tracking_number'] = $order_info['jadlog_embarcador_tracking_number'];
+			$data['tracking_link'] = str_replace("{TRACKING_ID}", $order_info['jadlog_embarcador_tracking_number'], $this->config->get('jadloglista_jadlog_tracking_url'));
+
+]]></add>
+		</operation>
+	</file>
+	<file name="admin/controller/sale/order.php">
+		<operation error="abort">
+			<search position="after"><![CDATA['shipping_address'   => $shipping_address,]]></search>
+			<add><![CDATA[				  'shipping_method'    => $order_info['shipping_method'],]]></add>
+		</operation>
+	</file>
+	<file name="admin/model/sale/customer.php">
+		<operation error="abort">
+			<search position="replace"><![CDATA[$this->db->query("INSERT INTO " . DB_PREFIX . "customer SET customer_group_id = '" . (int)$data['customer_group_id'] . "', firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', email = '" . $this->db->escape($data['email']) . "', telephone = '" . $this->db->escape($data['telephone']) . "', fax = '" . $this->db->escape($data['fax']) . "', custom_field = '" . $this->db->escape(isset($data['custom_field']) ? serialize($data['custom_field']) : '') . "', newsletter = '" . (int)$data['newsletter'] . "', salt = '" . $this->db->escape($salt = substr(md5(uniqid(rand(), true)), 0, 9)) . "', password = '" . $this->db->escape(sha1($salt . sha1($salt . sha1($data['password'])))) . "', status = '" . (int)$data['status'] . "', approved = '" . (int)$data['approved'] . "', safe = '" . (int)$data['safe'] . "', date_added = NOW()");]]></search>
+			<add><![CDATA[$this->db->query("INSERT INTO " . DB_PREFIX . "customer SET customer_group_id = '" . (int)$data['customer_group_id'] . "', firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', email = '" . $this->db->escape($data['email']) . "', telephone = '" . $this->db->escape($data['telephone']) . "', fax = '" . $this->db->escape($data['fax']) . "', custom_field = '" . $this->db->escape(isset($data['custom_field']) ? serialize($data['custom_field']) : '') . "', newsletter = '" . (int)$data['newsletter'] . "', salt = '" . $this->db->escape($salt = substr(md5(uniqid(rand(), true)), 0, 9)) . "', password = '" . $this->db->escape(sha1($salt . sha1($salt . sha1($data['password'])))) . "', status = '" . (int)$data['status'] . "', approved = '" . (int)$data['approved'] . "', cpf_or_cnpj = '" . $data['cpf_or_cnpj']. "', safe = '" . (int)$data['safe'] . "', date_added = NOW()");]]></add>
+		</operation>
+	</file>
+	<file name="admin/model/sale/customer.php">
+		<operation error="abort">
+			<search position="replace"><![CDATA[$this->db->query("UPDATE " . DB_PREFIX . "customer SET customer_group_id = '" . (int)$data['customer_group_id'] . "', firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', email = '" . $this->db->escape($data['email']) . "', telephone = '" . $this->db->escape($data['telephone']) . "', fax = '" . $this->db->escape($data['fax']) . "', custom_field = '" . $this->db->escape(isset($data['custom_field']) ? serialize($data['custom_field']) : '') . "', newsletter = '" . (int)$data['newsletter'] . "', status = '" . (int)$data['status'] . "', approved = '" . (int)$data['approved'] . "', safe = '" . (int)$data['safe'] . "' WHERE customer_id = '" . (int)$customer_id . "'");]]></search>
+			<add><![CDATA[$this->db->query("UPDATE " . DB_PREFIX . "customer SET customer_group_id = '" . (int)$data['customer_group_id'] . "', firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', email = '" . $this->db->escape($data['email']) . "', telephone = '" . $this->db->escape($data['telephone']) . "', fax = '" . $this->db->escape($data['fax']) . "', custom_field = '" . $this->db->escape(isset($data['custom_field']) ? serialize($data['custom_field']) : '') . "', newsletter = '" . (int)$data['newsletter'] . "', status = '" . (int)$data['status'] . "', approved = '" . (int)$data['approved'] . "', cpf_or_cnpj = '" . $data['cpf_or_cnpj'] . "', safe = '" . (int)$data['safe'] . "' WHERE customer_id = '" . (int)$customer_id . "'");]]></add>
+		</operation>
+	</file>
+	<file name="admin/model/sale/order.php">
+		<operation error="abort">
+			<search position="replace"><![CDATA['date_modified'           => $order_query->row['date_modified']]]></search>
+			<add><![CDATA['date_modified'           => $order_query->row['date_modified'],
+ 				'jadlog_embarcador_tracking_number'           => $order_query->row['jadlog_embarcador_tracking_number']]]></add>
+		</operation>
+	</file>
+	<file name="admin/view/template/common/menu.tpl">
+		<operation error="abort">
+			<search position="after"><![CDATA[<li><a href="<?php echo $order; ?>"><?php echo $text_order; ?></a></li>]]></search>
+			<add><![CDATA[      <li><a href="<?php echo $jadlog ?>">Jadlog</a></li>]]></add>
+		</operation>
+	</file>
+	<file name="admin/view/template/sale/customer_form.tpl">
+		<operation error="abort">
+			<search position="after" offset="13"><![CDATA[<label class="col-sm-2 control-label" for="input-safe"><?php echo $entry_safe; ?></label>]]></search>
+			<add><![CDATA[                      <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-confirm">CPF/CNPJ:</label>
+                        <div class="col-sm-10">
+                          <input type="text" name="cpf_or_cnpj" value="<?php echo $cpf_or_cnpj; ?>" id="input-cpf_or_cnpj" class="form-control" />
+                        </div>
+                      </div>
+]]></add>
+		</operation>
+	</file>
+	<file name="admin/view/template/sale/order_info.tpl">
+		<operation error="abort">
+			<search position="after" offset="1"><![CDATA[<td><?php echo $shipping_method; ?></td>]]></search>
+			<add><![CDATA[              <?php if ($tracking_number) { ?>
+              <tr>
+                <td>Tracking info</td>
+                <td><a href="<?php echo $tracking_link; ?>" target="_blank"><?php echo $tracking_number; ?></a></td>
+              </tr>
+              <?php } ?>
+]]></add>
+		</operation>
+	</file>
+
+	<file name="catalog/controller/account/edit.php">
+		<operation error="abort">
+			<search position="after" offset="4"><![CDATA[$data['fax'] = $customer_info['fax'];]]></search>
+			<add><![CDATA[		if (isset($this->request->post['cpf_or_cnpj'])) {
+		    $data['cpf_or_cnpj'] = $this->request->post['cpf_or_cnpj'];
+		} elseif (!empty($customer_info)) {
+		    $data['cpf_or_cnpj'] = $customer_info['cpf_or_cnpj'];
+		} else {
+		    $data['cpf_or_cnpj'] = '';
+		}
+			]]></add>
+		</operation>
+	</file>
+	<file name="catalog/controller/account/order.php">
+		<operation error="abort">
+			<search position="replace"><![CDATA[$data['shipping_method'] = $order_info['shipping_method'];]]></search>
+			<add><![CDATA[			$addr = $order_info['shipping_method'];
+			$pos = strpos($addr, "<a href=");
+			if ($pos) {
+			    $addr = substr($addr, 0, $pos-1);
+			}
+			$prefix = '';
+			if (strpos($order_info['shipping_code'], 'jadlogclassic') !== false) {
+			    $prefix = 'Jadlog Classic - ';
+
+			} else if (strpos($order_info['shipping_code'], 'jadloglista') !== false) {
+			    $prefix = 'Jadlog Lista - ';
+			}
+			$data['shipping_method'] = $prefix . $addr;
+			$data['tracking_number'] = $order_info['jadlog_embarcador_tracking_number'];
+
+			$data['tracking_link'] = str_replace("{TRACKING_ID}", $order_info['jadlog_embarcador_tracking_number'], $this->config->get('jadloglista_jadlog_tracking_url'));
+			]]></add>
+		</operation>
+	</file>
+	<file name="catalog/controller/account/register.php">
+		<operation error="abort">
+			<search position="after" offset="4"><![CDATA[$data['fax'] = $this->request->post['fax'];]]></search>
+			<add><![CDATA[		if (isset($this->request->post['cpf_or_cnpj'])) {
+		    $data['cpf_or_cnpj'] = $this->request->post['cpf_or_cnpj'];
+		} else {
+		    $data['cpf_or_cnpj'] = '';
+		}
+			]]></add>
+		</operation>
+	</file>
+	<file name="catalog/model/account/customer.php">
+		<operation error="abort">
+			<search position="replace"><![CDATA[$this->db->query("INSERT INTO " . DB_PREFIX . "customer SET customer_group_id = '" . (int)$customer_group_id . "', store_id = '" . (int)$this->config->get('config_store_id') . "', firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', email = '" . $this->db->escape($data['email']) . "', telephone = '" . $this->db->escape($data['telephone']) . "', fax = '" . $this->db->escape($data['fax']) . "', custom_field = '" . $this->db->escape(isset($data['custom_field']['account']) ? serialize($data['custom_field']['account']) : '') . "', salt = '" . $this->db->escape($salt = substr(md5(uniqid(rand(), true)), 0, 9)) . "', password = '" . $this->db->escape(sha1($salt . sha1($salt . sha1($data['password'])))) . "', newsletter = '" . (isset($data['newsletter']) ? (int)$data['newsletter'] : 0) . "', ip = '" . $this->db->escape($this->request->server['REMOTE_ADDR']) . "', status = '1', approved = '" . (int)!$customer_group_info['approval'] . "', date_added = NOW()");]]></search>
+			<add><![CDATA[$this->db->query("INSERT INTO " . DB_PREFIX . "customer SET customer_group_id = '" . (int)$customer_group_id . "', store_id = '" . (int)$this->config->get('config_store_id') . "', firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', email = '" . $this->db->escape($data['email']) . "', telephone = '" . $this->db->escape($data['telephone']) . "', cpf_or_cnpj = '" . $this->db->escape($data['cpf_or_cnpj']) . "', fax = '" . $this->db->escape($data['fax']) . "', custom_field = '" . $this->db->escape(isset($data['custom_field']['account']) ? serialize($data['custom_field']['account']) : '') . "', salt = '" . $this->db->escape($salt = substr(md5(uniqid(rand(), true)), 0, 9)) . "', password = '" . $this->db->escape(sha1($salt . sha1($salt . sha1($data['password'])))) . "', newsletter = '" . (isset($data['newsletter']) ? (int)$data['newsletter'] : 0) . "', ip = '" . $this->db->escape($this->request->server['REMOTE_ADDR']) . "', status = '1', approved = '" . (int)!$customer_group_info['approval'] . "', date_added = NOW()");]]></add>
+		</operation>
+	</file>
+	<file name="catalog/model/account/customer.php">
+		<operation error="abort">
+			<search position="replace"><![CDATA[$this->db->query("UPDATE " . DB_PREFIX . "customer SET firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', email = '" . $this->db->escape($data['email']) . "', telephone = '" . $this->db->escape($data['telephone']) . "', fax = '" . $this->db->escape($data['fax']) . "', custom_field = '" . $this->db->escape(isset($data['custom_field']) ? serialize($data['custom_field']) : '') . "' WHERE customer_id = '" . (int)$customer_id . "'");]]></search>
+			<add><![CDATA[$this->db->query("UPDATE " . DB_PREFIX . "customer SET firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', email = '" . $this->db->escape($data['email']) . "', telephone = '" . $this->db->escape($data['telephone']) . "', cpf_or_cnpj = '" . $this->db->escape($data['cpf_or_cnpj']) . "', fax = '" . $this->db->escape($data['fax']) . "', custom_field = '" . $this->db->escape(isset($data['custom_field']) ? serialize($data['custom_field']) : '') . "' WHERE customer_id = '" . (int)$customer_id . "'");]]></add>
+		</operation>
+	</file>
+	<file name="catalog/model/account/order.php">
+		<operation error="abort">
+			<search position="replace"><![CDATA['ip'                      => $order_query->row['ip']]]></search>
+			<add><![CDATA['ip'                      => $order_query->row['ip'],
+				'shipping_code'         => $order_query->row['shipping_code'],
+			    'jadlog_embarcador_tracking_number' => $order_query->row['jadlog_embarcador_tracking_number']]]></add>
+		</operation>
+	</file>
+	<file name="catalog/view/theme/default/template/account/edit.tpl">
+		<operation error="abort">
+			<search position="after" offset="4"><![CDATA[<?php echo $entry_fax; ?></label>]]></search>
+			<add><![CDATA[          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-cpf_or_cnpj">CPF/CNPJ:</label>
+            <div class="col-sm-10">
+              <input type="text" name="cpf_or_cnpj" value="<?php echo $cpf_or_cnpj; ?>" id="input-cpf_or_cnpj" class="form-control" />
+            </div>
+          </div>]]></add>
+		</operation>
+	</file>
+	<file name="catalog/view/theme/default/template/checkout/shipping.tpl">
+		<operation error="abort">
+			<search position="after" offset="4"><![CDATA[<?php echo $entry_postcode; ?></label>]]></search>
+			<add><![CDATA[
+				<div class="form-group required">
+          <label class="col-sm-2 control-label" for="input-city"><?php echo $entry_city; ?></label>
+          <div class="col-sm-10">
+            <input type="text" name="city" value="<?php echo $city; ?>" placeholder="<?php echo $entry_city; ?>" id="input-city" class="form-control" />
+          </div>
+        </div>
+      ]]></add>
+		</operation>
+		<operation error="abort">
+			<search position="replace"><![CDATA[
+				+ '&zone_id=' + $('select[name=\'zone_id\']').val() +
+			]]></search>
+			<add><![CDATA[
+				+ '&zone_id=' + $('select[name=\'zone_id\']').val() + '&city=' + encodeURIComponent($('input[name=\'city\']').val()) +
+			]]></add>
+		</operation>
+		<operation error="abort">
+			<search position="after" offset="2"><![CDATA[if (json['error']['postcode']) {]]></search>
+			<add><![CDATA[
+				if (json['error']['city']) {
+        			$('input[name=\'city\']').after('<div class="text-danger">' + json['error']['city'] + '</div>');
+        		}
+			]]></add>
+		</operation>
+	</file>
+	<file name="catalog/controller/checkout/shipping.php">
+		<operation error="abort">
+			<search position="replace"><![CDATA[
+				$data['entry_postcode'] = $this->language->get('entry_postcode');
+			]]></search>
+			<add><![CDATA[
+				$data['entry_postcode'] = $this->language->get('entry_postcode');
+				$data['entry_city'] = 'Cidade'; //$this->language->get('entry_city');
+			]]></add>
+		</operation>
+		<operation error="abort">
+			<search position="after" offset="4"><![CDATA[if (isset($this->session->data['shipping_address']['postcode'])) {]]></search>
+			<add><![CDATA[
+				if (isset($this->session->data['shipping_address']['city'])) {
+	        $data['city'] = $this->session->data['shipping_address']['city'];
+        } else {
+            $data['city'] = '';
+        }
+			]]></add>
+		</operation>
+		<operation error="abort">
+			<search position="after" offset="2">
+				<![CDATA[if (!isset($this->request->post['zone_id']) || $this->request->post['zone_id'] == '') {]]>
+			</search>
+			<add><![CDATA[
+	      if (!isset($this->request->post['city']) || $this->request->post['city'] == '') {
+	        $json['error']['city'] = 'Cidade é obrigatória'; //$this->language->get('error_city');
+        }
+			]]></add>
+		</operation>
+		<operation error="abort">
+			<search position="replace"><![CDATA['city'           => '',]]></search>
+			<add><![CDATA['city'       => $this->request->post['city'],]]></add>
+		</operation>
+	</file>
+	<file name="catalog/view/theme/default/template/account/order_info.tpl">
+		<operation error="abort">
+			<search position="after" offset="1"><![CDATA[<b><?php echo $text_shipping_method; ?></b> <?php echo $shipping_method; ?>]]></search>
+			<add><![CDATA[              <?php if (isset($tracking_number) && strlen($tracking_number)>0) { ?>
+              <b>Trackig info:</b> <a href="<?php echo $tracking_link; ?>" target="_blank"><?php echo $tracking_number; ?></a>
+              <?php } ?></td>]]></add>
+		</operation>
+	</file>
+	<file name="catalog/view/theme/default/template/account/register.tpl">
+		<operation error="abort">
+			<search position="after" offset="4"><![CDATA[<label class="col-sm-2 control-label" for="input-fax"><?php echo $entry_fax; ?></label>]]></search>
+			<add><![CDATA[          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-cpf_or_cnpj">CPF/CNPJ:</label>
+            <div class="col-sm-10">
+              <input type="text" name="cpf_or_cnpj" value="<?php echo $cpf_or_cnpj; ?>" id="input-cpf_or_cnpj" class="form-control" />
+            </div>
+          </div>
+			]]></add>
+		</operation>
+	</file>
+	<file name="system/library/customer.php">
+		<operation error="abort">
+			<search position="after" offset="4"><![CDATA[public function __construct($registry) {]]></search>
+			<add><![CDATA[	    $this->install();]]></add>
+		</operation>
+	</file>
+	<file name="system/library/customer.php">
+		<operation error="abort">
+			<search position="before" offset="1"><![CDATA[public function __construct($registry) {]]></search>
+			<add><![CDATA[private function install() {
+	    $query = $this->db->query("DESC ".DB_PREFIX."customer cpf_or_cnpj");
+	    if (!$query->num_rows) {
+	        $this->db->query("ALTER TABLE `" . DB_PREFIX . "customer` ADD `cpf_or_cnpj` varchar(20) default ''");
+	    }
+	}]]></add>
+		</operation>
+	</file>
+</modification>
