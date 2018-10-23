@@ -35,6 +35,8 @@ ENV OPENCART_VER 2.0.3.1
 ENV OPENCART_MD5 222c20ee61a4ff280f55fb0ea688c746
 ENV OPENCART_URL https://github.com/opencart/opencart/archive/${OPENCART_VER}.tar.gz
 ENV OPENCART_FILE opencart.tar.gz
+ENV VQMOD_URL https://github.com/vqmod/vqmod/releases/download/v2.6.3-opencart/vqmod-2.6.3-opencart.zip
+ENV VQMOD_FILE vqmod.zip
 
 RUN set -xe \
     && curl -sSL ${OPENCART_URL} -o ${OPENCART_FILE} \
@@ -43,4 +45,7 @@ RUN set -xe \
     && mv config-dist.php config.php \
     && mv admin/config-dist.php admin/config.php \
     && rm ${OPENCART_FILE} \
+    && curl -sSL ${VQMOD_URL} -o ${VQMOD_FILE} \
+    && unzip ${VQMOD_FILE} \
+    && rm ${VQMOD_FILE} \
     && chown -R www-data:www-data /var/www
